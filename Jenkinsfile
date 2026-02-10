@@ -2,23 +2,27 @@
 pipeline {
     agent any
 
-    environment{
-        IMAGE:"ssm0712/docker-jenkins-production-versioning"
+    environment {
+        IMAGE ="ssm0712/docker-jenkins-production-versioning"
     }
 
     stages{
-        stage('Git Checkout'){
+        stage ('Git Checkout'){
             steps{
                 checkout scm
             }
         }   
 
-        stage('Set Version'){
+        stage ('Set Version'){
             steps{
-                env.SHORT_SHA = bat(
+                script{
+                    env.SHORT_SHA = bat(
                     script: 'git rev-parse --short HEAD',
                     returnStdout:true
                 ).trim()
+
+                }
+                
 
                 env.VERSION = "${BUILD_NUMBER}-${env.SHORT_SHA}"
             }
