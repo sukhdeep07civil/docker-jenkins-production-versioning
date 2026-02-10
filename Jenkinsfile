@@ -17,7 +17,7 @@ pipeline {
             steps{
                 script{
                     env.SHORT_SHA = bat(
-                    script: 'git rev-parse --short HEAD',
+                    script: '@echo off && git rev-parse --short HEAD',
                     returnStdout:true
                 ).trim()
 
