@@ -1,4 +1,5 @@
-pipeline{
+/* groovylint-disable NglParseError */
+pipeline {
     agent any
 
     environment{
@@ -36,28 +37,24 @@ pipeline{
                 bat"""
                 docker tag %IMAGE%:%VERSION% %IMAGE%:%BUILD_NUMBER%
                 docker tag %IMAGE%:%VERSION% %IMAGE%:latest
-
                 """
             }
         }
 
         stage('Push Versions'){
             steps{
-                bat """
                 withCredentials([usernamePassword(
                 credentialsId: 'dockerhub-creds',
                 usernameVariable: 'DOCKER_USER'
                 passwordVariable: 'DOCKER_PASS'
-                )]){
+                )]) {
                 bat """
                 docker login -u %DOCKER_USER% -p %DOCKER_PASS%
-
                 docker push %IMAGE%:%VERSION%
                 docker push %IMAGE%:%BUILD_NUMBER%
                 docker push %IMAGE%:latest
                 """
                 }
-                """
             }
         }
     }
