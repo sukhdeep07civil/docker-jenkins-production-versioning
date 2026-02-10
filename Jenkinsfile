@@ -21,10 +21,12 @@ pipeline {
                     returnStdout:true
                 ).trim()
 
+                env.VERSION = "${BUILD_NUMBER}-${env.SHORT_SHA}"
+
                 }
                 
 
-                env.VERSION = "${BUILD_NUMBER}-${env.SHORT_SHA}"
+                
             }
         }
 
