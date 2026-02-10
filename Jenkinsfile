@@ -1,0 +1,64 @@
+pipeline{
+    agent any
+
+    environment{
+        IMAGE:"ssm0712/docker-jenkins-production-versioning"
+    }
+
+    stages{
+        stage('Git Checkout'){
+            steps{
+                checkout scm
+            }
+        }   
+
+        stage('Set Version'){
+            steps{
+                env.SHORT_SHA = bat(
+                    script: 'git rev-parse --short HEAD',
+                    returnStdout:true
+                ).trim()
+
+                env.VERSION = "${BUILD_NUMBER}-${env.SHORT_SHA}"
+            }
+        }
+
+        stage('Build Image'){
+            steps{
+                bat """
+                docker build -t %IMAGE%:%VERSION%
+                """
+            }
+        }
+
+        stage('Tag Versions'){
+            steps{
+                bat"""
+                docker tag %IMAGE%:%VERSION% %IMAGE%:%BUILD_NUMBER%
+                docker tag %IMAGE%:%VERSION% %IMAGE%:latest
+
+                """
+            }
+        }
+
+        stage('Push Versions'){
+            steps{
+                bat """
+                withCredentials([usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'DOCKER_USER'
+                passwordVariable: 'DOCKER_PASS'
+                )]){
+                bat """
+                docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+
+                docker push %IMAGE%:%VERSION%
+                docker push %IMAGE%:%BUILD_NUMBER%
+                docker push %IMAGE%:latest
+                """
+                }
+                """
+            }
+        }
+    }
+}
