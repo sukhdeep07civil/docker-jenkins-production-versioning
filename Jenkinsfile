@@ -33,7 +33,7 @@ pipeline {
         stage('Build Image'){
             steps{
                 bat """
-                docker build -t %IMAGE%:%VERSION%
+                docker build -t %IMAGE%:%VERSION% .
                 """
             }
         }
